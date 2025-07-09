@@ -3,7 +3,6 @@ import time
 from utils.ollama_client import OllamaClient
 from apps.chat import run_chat_app
 from apps.flashcard import run_flashcard_app
-from apps.news import run_news_app
 
 # Page configuration
 st.set_page_config(
@@ -74,12 +73,20 @@ with st.sidebar:
     st.info(f"{flag} **{selected_language}** selected")
     
     # App selection
-    apps = ["Chat", "Flash Card", "News"]
+    apps = ["Chat", "Flash Card"]
     selected_app = st.selectbox(
         "Select Application",
         options=apps,
         help="Choose the application to use"
     )
+    
+    # Clear Chat button (only show for Chat app)
+    if selected_app == "Chat":
+        st.markdown("")  # Add some spacing
+        if st.button("🗑️ Clear Chat", type="secondary", use_container_width=True):
+            st.session_state.messages = []
+            st.session_state.translations = {}
+            st.rerun()
     
     st.divider()
     st.caption("Powered by Ollama & Streamlit")
@@ -94,5 +101,3 @@ else:
         run_chat_app(selected_model, selected_language)
     elif selected_app == "Flash Card":
         run_flashcard_app(selected_model, selected_language)
-    elif selected_app == "News":
-        run_news_app(selected_model, selected_language)

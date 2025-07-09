@@ -8,14 +8,51 @@ def run_chat_app(model: str, language: str):
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
+    # Initialize translations in session state
+    if "translations" not in st.session_state:
+        st.session_state.translations = {}
+    
     # Display chat title
     st.title(f"Chat in {language}")
     st.caption(f"Using model: {model}")
     
     # Display chat history
-    for message in st.session_state.messages:
+    for i, message in enumerate(st.session_state.messages):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+        
+        # Add translation section for assistant messages
+        if message["role"] == "assistant":
+            # Create a unique container for each message
+            with st.container():
+                # Add some spacing
+                st.markdown("")
+                
+                # Create columns for button and translation
+                col1, col2 = st.columns([2, 10])
+                
+                with col1:
+                    # Use a simple key based on index
+                    if st.button("🔤 Translate", key=f"trans_{i}"):
+                        # Translate if not already done
+                        if i not in st.session_state.translations:
+                            with st.spinner("Translating..."):
+                                client = OllamaClient()
+                                translation = client.translate_to_english(
+                                    model=model,
+                                    text=message["content"],
+                                    source_language=language
+                                )
+                                st.session_state.translations[i] = translation
+                                st.rerun()
+                
+                with col2:
+                    # Display translation if available
+                    if i in st.session_state.translations:
+                        st.info(f"**English Translation:** {st.session_state.translations[i]}")
+            
+            # Add separator
+            st.markdown("---")
     
     # Chat input
     if prompt := st.chat_input("Type your message..."):
@@ -47,8 +84,6 @@ def run_chat_app(model: str, language: str):
         
         # Add assistant message to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
-    
-    # Clear chat button
-    if st.button("Clear Chat", type="secondary"):
-        st.session_state.messages = []
+        
+        # Rerun to show the new message with translate button
         st.rerun()
