@@ -1,0 +1,11 @@
+[project]
+name = "dailylanguagetutor"
+version = "0.1.0"
+description = "AI-powered language tutor using Streamlit and Ollama"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "streamlit>=1.29.0",
+    "requests>=2.31.0",
+    "ollama>=0.1.7",
+]
