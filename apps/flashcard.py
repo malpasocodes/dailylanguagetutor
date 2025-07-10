@@ -1,11 +1,12 @@
 import streamlit as st
 from utils.ollama_client import OllamaClient
 
-def run_flashcard_app(model: str, language: str):
+def run_flashcard_app(client, model: str, language: str):
     """Run the flashcard application with the selected model and language."""
     
-    # Store model in session state for access in other functions
+    # Store model and client in session state for access in other functions
     st.session_state.current_model = model
+    st.session_state.current_client = client
     
     # Initialize session state
     if "flashcard_words" not in st.session_state:
@@ -32,13 +33,13 @@ def run_flashcard_app(model: str, language: str):
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("5 Words", type="primary", use_container_width=True):
-                start_game(5, model, language)
+                start_game(5, client, model, language)
         with col2:
             if st.button("10 Words", type="primary", use_container_width=True):
-                start_game(10, model, language)
+                start_game(10, client, model, language)
         with col3:
             if st.button("25 Words", type="primary", use_container_width=True):
-                start_game(25, model, language)
+                start_game(25, client, model, language)
     
     # Game in progress
     else:
@@ -48,9 +49,8 @@ def run_flashcard_app(model: str, language: str):
         else:
             show_current_word()
 
-def start_game(word_count: int, model: str, language: str):
+def start_game(word_count: int, client, model: str, language: str):
     """Initialize a new game with the specified number of words."""
-    client = OllamaClient()
     
     with st.spinner(f"Generating {word_count} unique {language} words..."):
         result = client.generate_flashcard_words(model, language, word_count)
@@ -81,9 +81,9 @@ def start_game(word_count: int, model: str, language: str):
                     st.code(result.get("attempted_parse", "No content"))
                     
         st.info("💡 **Troubleshooting Tips:**")
-        st.write("1. Ensure your Ollama model supports JSON generation")
+        st.write("1. Ensure your model supports JSON generation")
         st.write("2. Try a different model (some models work better with structured output)")
-        st.write("3. Check that Ollama is running and accessible")
+        st.write("3. Check your API connection and credentials")
         
         if st.button("🔄 Try Again", type="primary"):
             st.rerun()

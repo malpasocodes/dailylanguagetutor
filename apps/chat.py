@@ -3,7 +3,7 @@ from utils.ollama_client import OllamaClient
 from database import db, Vocabulary
 from datetime import datetime
 
-def run_chat_app(model: str, language: str):
+def run_chat_app(client, model: str, language: str):
     """Run the chat application with the selected model and language."""
     
     # Initialize chat history in session state
@@ -43,7 +43,6 @@ def run_chat_app(model: str, language: str):
                         # Translate if not already done
                         if i not in st.session_state.translations:
                             with st.spinner("Translating..."):
-                                client = OllamaClient()
                                 translation = client.translate_to_english(
                                     model=model,
                                     text=message["content"],
@@ -76,7 +75,6 @@ def run_chat_app(model: str, language: str):
                             if word:
                                 if st.form_submit_button("🤖 Get AI Suggestions", type="secondary"):
                                     with st.spinner(f"Looking up '{word}'..."):
-                                        client = OllamaClient()
                                         vocab_info = client.enrich_vocabulary(model, word, language)
                                         
                                         if vocab_info:
@@ -185,9 +183,6 @@ def run_chat_app(model: str, language: str):
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            
-            # Initialize Ollama client
-            client = OllamaClient()
             
             # Stream the response
             for chunk in client.chat_stream(

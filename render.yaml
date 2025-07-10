@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: daily-language-tutor
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run main.py --server.port=$PORT --server.address=0.0.0.0
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: STREAMLIT_SERVER_PORT
+        value: $PORT
+      - key: STREAMLIT_SERVER_ADDRESS
+        value: 0.0.0.0
+      - key: STREAMLIT_SERVER_HEADLESS
+        value: true
+      - key: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+        value: false
