@@ -3,6 +3,7 @@ import time
 from utils.ollama_client import OllamaClient
 from apps.chat import run_chat_app
 from apps.flashcard import run_flashcard_app
+from apps.dictionary import run_dictionary_app
 
 # Page configuration
 st.set_page_config(
@@ -73,7 +74,7 @@ with st.sidebar:
     st.info(f"{flag} **{selected_language}** selected")
     
     # App selection
-    apps = ["Chat", "Flash Card"]
+    apps = ["Chat", "Flash Card", "Dictionary"]
     selected_app = st.selectbox(
         "Select Application",
         options=apps,
@@ -101,3 +102,5 @@ else:
         run_chat_app(selected_model, selected_language)
     elif selected_app == "Flash Card":
         run_flashcard_app(selected_model, selected_language)
+    elif selected_app == "Dictionary":
+        run_dictionary_app(selected_language)

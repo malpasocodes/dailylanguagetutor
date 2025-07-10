@@ -256,4 +256,65 @@ Vary your selections - include less common but still useful beginner words."""
         except requests.RequestException as e:
             return f"Translation error: {str(e)}"
     
+    def enrich_vocabulary(self, model: str, word: str, language: str) -> Optional[Dict[str, str]]:
+        """Get enriched information about a vocabulary word."""
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a language teacher providing vocabulary information. Always respond with valid JSON only, no markdown, no explanation."
+            },
+            {
+                "role": "user",
+                "content": f"""Provide information about this {language} word: "{word}"
+
+Return ONLY a JSON object (no markdown blocks) with this exact format:
+{{
+  "translation": "English translation",
+  "part_of_speech": "noun/verb/adjective/adverb/etc",
+  "example_sentence": "Example sentence in {language}",
+  "pronunciation_hint": "Pronunciation guide if helpful",
+  "gender": "masculine/feminine/neuter (only for languages with grammatical gender)",
+  "notes": "Any useful notes about usage or context"
+}}
+
+If the word doesn't exist or is misspelled, still provide your best attempt."""
+            }
+        ]
+        
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False
+        }
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/chat",
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            
+            result = response.json()
+            if "message" in result and "content" in result["message"]:
+                content = result["message"]["content"]
+                
+                # Handle markdown code blocks
+                if "```json" in content:
+                    content = content.split("```json")[1].split("```")[0]
+                elif "```" in content:
+                    content = content.split("```")[1].split("```")[0]
+                
+                # Parse JSON
+                vocab_info = json.loads(content.strip())
+                
+                # Validate required fields
+                if isinstance(vocab_info, dict) and "translation" in vocab_info and "part_of_speech" in vocab_info:
+                    return vocab_info
+                    
+        except (json.JSONDecodeError, requests.RequestException, KeyError):
+            pass
+        
+        return None
+    
 
