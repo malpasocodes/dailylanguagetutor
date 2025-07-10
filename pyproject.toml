@@ -1,6 +1,6 @@
 [project]
 name = "dailylanguagetutor"
-version = "0.10"
+version = "0.2"
 description = "AI-powered language tutor using Streamlit and Ollama"
 readme = "README.md"
 requires-python = ">=3.9"
