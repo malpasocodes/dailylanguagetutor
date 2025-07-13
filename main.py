@@ -7,6 +7,7 @@ from utils.cloud_clients import OpenAIClient, AnthropicClient
 from apps.chat import run_chat_app
 from apps.flashcard import run_flashcard_app
 from apps.dictionary import run_dictionary_app
+from apps.roleplay import run_roleplay_app
 
 # Load environment variables from .env file
 load_dotenv()
@@ -184,7 +185,7 @@ with st.sidebar:
     st.info(f"{flag} **{selected_language}** selected")
     
     # App selection
-    apps = ["Chat", "Flash Card", "Dictionary"]
+    apps = ["Chat", "Flash Card", "Dictionary", "Roleplay"]
     selected_app = st.selectbox(
         "Select Application",
         options=apps,
@@ -233,3 +234,5 @@ else:
         run_chat_app(client, selected_model, selected_language)
     elif selected_app == "Flash Card":
         run_flashcard_app(client, selected_model, selected_language)
+    elif selected_app == "Roleplay":
+        run_roleplay_app(client, selected_model, selected_language)
